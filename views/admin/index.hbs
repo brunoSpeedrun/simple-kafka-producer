@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <title>Simple Kafka Producer</title>
+    <link
+      rel='stylesheet'
+      href='https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css'
+    />
+    <link
+      rel='stylesheet'
+      href='https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.0/jsoneditor.min.css'
+      integrity='sha512-AEiXL7/bX8bmzC+hzre5EHTkMOFCsx/IjKXlL3J3m/G3qjGEzGSrCPPTzuqL0002YTM2uhyjDuhSvxCxB5u+xQ=='
+      crossorigin='anonymous'
+      referrerpolicy='no-referrer'
+    />
+  </head>
+  <body>
+    <section class='hero is-link is-small'>
+      <div class='hero-body'>
+        <p class='title'>
+          Simple Kafka Producer
+        </p>
+      </div>
+    </section>
+    <section class='section'>
+      <div class='container'>
+        <div class='columns'>
+          <div class='column is-half'>
+            <form id='kafka-form'>
+              <div class='field'>
+                <label class='label' for='kafka-topic'>Kafka Topic</label>
+                <div class='control'>
+                  <input class='input' type='text' id='kafka-topic' required/>
+                </div>
+              </div>
+              <div class='field'>
+                <label class='label' for='kafka-payload'>Payload</label>
+                <div id="json-editor"></div>
+              </div>
+              <div class='field is-grouped'>
+                <div class='control'>
+                  <button class='button is-link' type='submit' id="btn-submit">Submit</button>
+                </div>
+                <div class='control'>
+                  <input
+                    class='button is-link is-light'
+                    id='btn-clear'
+                    type="button"
+                    value="Clear"
+                  ></input>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="column is-half">
+            <div class="tile is-ancestor">
+              <div class="tile is-parent">
+                <article class="tile is-child box notification">
+                  <p class="title">Kafka Config</p>
+                  <div class="content">
+                    <p><strong>Client Id: </strong> {{kafkaClient.clientId}}</p>
+                    <p><strong>Brokers: </strong> {{kafkaClient.brokers}}</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script
+      src='https://code.jquery.com/jquery-3.6.0.min.js'
+      integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4='
+      crossorigin='anonymous'
+    ></script>
+    <script
+      src='https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.0/jsoneditor.min.js'
+      integrity='sha512-OAPQK6oatgSIBlxp49cOiV7ilfh4/I+XNEVnh/1HOw9a3KQHc6Ks1bhSNwWHQJjIzFrj1y514cFah6nhzljBgQ=='
+      crossorigin='anonymous'
+      referrerpolicy='no-referrer'
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.4.1/dist/bulma-toast.min.js"></script>
+
+    <script>
+      function createJsonEditor() {
+        var jsonEditorContainer = document.getElementById("json-editor");
+        var options = {
+          mode: "code",
+          modes: ["code", "form", "text", "tree", "view", "preview"], // allowed modes
+          onModeChange: function (newMode, oldMode) {
+            console.log("Mode switched from", oldMode, "to", newMode);
+          },
+        };
+        var initialJson = {
+          hello: "world",
+        };
+        var jsonEditor = new JSONEditor(jsonEditorContainer, options, initialJson);
+
+        return jsonEditor;
+      }
+
+      $(document).ready(function () {
+        var jsonEditor = createJsonEditor();
+
+        $("#kafka-form").on("submit", function (e) {
+          e.preventDefault();
+          var kafkaTopic = $("#kafka-topic").val();
+          var kafkaPayload = jsonEditor.get();
+
+          $.ajax({
+            method: "POST",
+            url: "/api/publish-to-kafka",
+            headers: {
+              "x-kafka-topic": kafkaTopic,
+            },
+            data: { payload: kafkaPayload },
+            beforeSend: function () {
+              $("#btn-submit").addClass("is-loading");
+            },
+            success: function (response) {
+              bulmaToast.toast({
+                message: "Message Published",
+                type: "is-success",
+                dismissible: true,
+                pauseOnHover: true,
+              });
+            },
+            error: function (xhr) {
+              var errorMessage = xhr.responseJSON.message;
+              bulmaToast.toast({
+                message: errorMessage,
+                type: "is-danger",
+                dismissible: true,
+                pauseOnHover: true,
+              });
+            },
+            complete: function () {
+              $("#btn-submit").removeClass("is-loading");
+            },
+          });
+        });
+
+        $("#btn-clear").on("click", function () {
+          $("#kafka-topic").val("");
+          jsonEditor.set("");
+        });
+      });
+    </script>
+  </body>
+</html>
