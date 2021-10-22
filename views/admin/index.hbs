@@ -30,8 +30,14 @@
             <form id='kafka-form'>
               <div class='field'>
                 <label class='label' for='kafka-topic'>Kafka Topic</label>
-                <div class='control'>
-                  <input class='input' type='text' id='kafka-topic' required/>
+                <div class="control">
+                  <div class="select is-fullwidth">
+                    <select id="kafka-topic" required>
+                      {{#each topics}}
+                        <option value="{{this}}">{{this}}</option>
+                      {{/each}}
+                    </select>
+                  </div>
                 </div>
               </div>
               <div class='field'>
@@ -105,7 +111,7 @@
 
         $("#kafka-form").on("submit", function (e) {
           e.preventDefault();
-          var kafkaTopic = $("#kafka-topic").val();
+          var kafkaTopic = $('#kafka-topic option:selected').val();
           var kafkaPayload = jsonEditor.get();
 
           $.ajax({

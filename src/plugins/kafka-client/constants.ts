@@ -1,0 +1,4 @@
+export const KAFKA_CLIENT = 'KAFKA_CLIENT';
+export const KAFKA_ADMIN = 'KAFKA_ADMIN';
+export const KAFKA_PRODUCER = 'KAFKA_PRODUCER';
+export const KAFKA_ADMIN_OPTIONS = 'KAFKA_ADMIN_OPTIONS';

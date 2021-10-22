@@ -4,12 +4,11 @@ import {
   Headers,
   HttpCode,
   HttpStatus,
-  Inject,
   Post,
 } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
+import { IKafkaProducer, KafkaProducer } from 'src/plugins/kafka-client';
 
-import { KAFKA_PRODUCER_CLIENT, X_KAFKA_TOPIC_HEADER } from './constants';
+import { X_KAFKA_TOPIC_HEADER } from './constants';
 
 type KafkaPayloadDto = {
   payload: any;
@@ -18,7 +17,7 @@ type KafkaPayloadDto = {
 @Controller('api')
 export class KafkaProducerController {
   constructor(
-    @Inject(KAFKA_PRODUCER_CLIENT) private readonly kafkaClient: ClientKafka,
+    @KafkaProducer() private readonly kafkaProducer: IKafkaProducer,
   ) {}
 
   @Post('publish-to-kafka')
@@ -27,6 +26,6 @@ export class KafkaProducerController {
     @Body() body: KafkaPayloadDto,
     @Headers(X_KAFKA_TOPIC_HEADER) kafkaTopic: string,
   ) {
-    return this.kafkaClient.emit(kafkaTopic, body.payload);
+    return this.kafkaProducer.send(kafkaTopic, body.payload);
   }
 }
