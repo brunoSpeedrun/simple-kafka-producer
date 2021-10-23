@@ -2,6 +2,7 @@ import { RecordMetadata } from '@nestjs/microservices/external/kafka.interface';
 
 export interface IKafkaAdmin {
   listTopics(): Promise<string[]>;
+  createTopic(topicName: string): Promise<boolean>;
   close(): Promise<void>;
 }
 

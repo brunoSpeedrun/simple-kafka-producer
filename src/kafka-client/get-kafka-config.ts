@@ -11,6 +11,11 @@ export function getKafkaConfig(configService: ConfigService): KafkaOptions {
       client: {
         clientId,
         brokers,
+        connectionTimeout: 3000,
+        retry: {
+          initialRetryTime: 1000,
+          retries: 8,
+        },
       },
     },
   };

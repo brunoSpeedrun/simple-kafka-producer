@@ -31,12 +31,19 @@
               <div class='field'>
                 <label class='label' for='kafka-topic'>Kafka Topic</label>
                 <div class="control">
-                  <div class="select is-fullwidth">
-                    <select id="kafka-topic" required>
-                      {{#each topics}}
-                        <option value="{{this}}">{{this}}</option>
-                      {{/each}}
-                    </select>
+                  <div class="columns">
+                    <div class="column is-three-quarters">
+                      <div class="select is-fullwidth">
+                        <select id="kafka-topic" required>
+                          {{#each topics}}
+                            <option value="{{this}}">{{this}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="column is-half">
+                      <input type="button" value="Create Topic" class="button is-link toggle-modal-create-topic" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -46,7 +53,7 @@
               </div>
               <div class='field is-grouped'>
                 <div class='control'>
-                  <button class='button is-link' type='submit' id="btn-submit">Submit</button>
+                  <button class='button is-link' type='submit' id="btn-publish">Publish</button>
                 </div>
                 <div class='control'>
                   <input
@@ -75,6 +82,29 @@
         </div>
       </div>
     </section>
+    <div class="modal" id="modal-create-topic">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">New Topic</p>
+          <button class="delete toggle-modal-create-topic" aria-label="close"></button>
+        </header>
+        <form id="new-topic-form">
+          <section class="modal-card-body">
+            <div class="field">
+              <label class="label">Topic Name</label>
+              <div class="control">
+                <input class="input" type="text" id="topic-name" required>
+              </div>
+            </div>
+          </section>
+            <footer class="modal-card-foot">
+              <button type="submit" class="button is-link" id="btn-create-topic">Create</button>
+              <input type="button" class="button toggle-modal-create-topic" value="Cancel" />
+          </footer>
+        </form>
+      </div>
+    </div>
     <script
       src='https://code.jquery.com/jquery-3.6.0.min.js'
       integrity='sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4='
@@ -106,6 +136,10 @@
         return jsonEditor;
       }
 
+      function toggleModalCreateTopic() {
+        $('#modal-create-topic').toggleClass('is-active');
+      }
+
       $(document).ready(function () {
         var jsonEditor = createJsonEditor();
 
@@ -122,7 +156,7 @@
             },
             data: { payload: kafkaPayload },
             beforeSend: function () {
-              $("#btn-submit").addClass("is-loading");
+              $("#btn-publish").addClass("is-loading");
             },
             success: function (response) {
               bulmaToast.toast({
@@ -142,7 +176,7 @@
               });
             },
             complete: function () {
-              $("#btn-submit").removeClass("is-loading");
+              $("#btn-publish").removeClass("is-loading");
             },
           });
         });
@@ -151,6 +185,47 @@
           $("#kafka-topic").val("");
           jsonEditor.set("");
         });
+
+        $('.toggle-modal-create-topic').on('click', toggleModalCreateTopic);
+
+        $('#new-topic-form').on('submit', function(e) {
+          e.preventDefault();
+          var topicName = $('#topic-name').val();
+
+          $.ajax({
+            url: '/admin/create-topic',
+            method: 'POST',
+            data: { topicName: topicName },
+            beforeSend: function () {
+              $("#btn-create-topic").addClass("is-loading");
+            },
+            complete: function () {
+              $("#btn-create-topic").removeClass("is-loading");
+            },
+            success: function (response) {
+              bulmaToast.toast({
+                message: "Topic created!",
+                type: "is-success",
+                dismissible: true,
+                pauseOnHover: true,
+              });
+              toggleModalCreateTopic();
+              $('#kafka-topic').append($('<option>', {
+                value: topicName,
+                text: topicName,
+              }));
+            },
+            error: function (xhr) {
+              var errorMessage = xhr.responseJSON.message;
+              bulmaToast.toast({
+                message: errorMessage,
+                type: "is-danger",
+                dismissible: true,
+                pauseOnHover: true,
+              });
+            },
+          })
+        })
       });
     </script>
   </body>

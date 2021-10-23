@@ -12,4 +12,14 @@ export class DefaultKafkaAdmin implements IKafkaAdmin {
   async close(): Promise<void> {
     await this.admin.disconnect();
   }
+
+  createTopic(topicName: string): Promise<boolean> {
+    return this.admin.createTopics({
+      topics: [
+        {
+          topic: topicName,
+        },
+      ],
+    });
+  }
 }
