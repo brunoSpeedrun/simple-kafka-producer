@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 
-import { AdminModule } from './admin';
-import { KafkaProducerModule } from './kafka-producer';
-import { AppConfigModule } from './app-config';
-import { KafkaClientModule } from './kafka-client/kafka-client.module';
+import { AdminModule } from '@simple-kafka-producer/admin';
+import { KafkaProducerModule } from '@simple-kafka-producer/kafka-producer';
+import { AppConfigModule } from '@simple-kafka-producer/app-config';
+import { KafkaClientModule } from '@simple-kafka-producer/kafka-client/kafka-client.module';
 
 @Module({
   imports: [

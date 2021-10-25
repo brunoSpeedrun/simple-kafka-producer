@@ -6,8 +6,8 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { IKafkaProducer, KafkaProducer } from 'src/plugins/kafka-client';
 
+import { IKafkaProducer, KafkaProducer } from '@simple-kafka-producer/plugins/kafka-client';
 import { X_KAFKA_TOPIC_HEADER } from './constants';
 
 type KafkaPayloadDto = {

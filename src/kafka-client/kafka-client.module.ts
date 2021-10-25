@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { KafkaClientPlugin } from '@simple-kafka-producer/plugins/kafka-client';
 import { getKafkaConfig } from './get-kafka-config';
-import { KafkaClientPlugin } from 'src/plugins/kafka-client';
 
 @Module({
   imports: [

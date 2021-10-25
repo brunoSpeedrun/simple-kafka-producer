@@ -8,9 +8,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { IKafkaAdmin, KafkaAdmin } from 'src/plugins/kafka-client';
-
-import { getKafkaConfig } from '../kafka-client';
+import { IKafkaAdmin, KafkaAdmin } from '@simple-kafka-producer/plugins/kafka-client';
+import { getKafkaConfig } from '@simple-kafka-producer/kafka-client';
 
 type CreateTopicDto = {
   topicName: string;
